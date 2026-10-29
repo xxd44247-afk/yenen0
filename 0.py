@@ -17,11 +17,11 @@ def run_dummy_server():
 threading.Thread(target=run_dummy_server, daemon=True).start()
 
 # =====================================================================
-# 🤖 SELF-BOT - 3 SANİYEDE BİR MESAJ GÖNDERME
+# 🤖 SELF-BOT - 2 SANİYEDE BİR MESAJ + TYPING
 # =====================================================================
 
 TOKEN = os.getenv("SELF_TOKEN")
-KANAL_STR = os.getenv("MESAJ_KANAL_ID", "")   # Mesajların gideceği kanal
+KANAL_STR = os.getenv("MESAJ_KANAL_ID", "")
 
 if not TOKEN:
     sys.exit("❌ HATA: SELF_TOKEN eksik!")
@@ -33,7 +33,6 @@ MESAJ_KANAL_ID = int(KANAL_STR)
 client = discord.Client()
 
 def mesajlari_yukle():
-    """mesajlar.txt dosyasını okur"""
     try:
         with open("mesajlar.txt", "r", encoding="utf-8") as f:
             mesajlar = [satir.strip() for satir in f.readlines() if satir.strip()]
@@ -67,11 +66,16 @@ async def mesaj_gonderme_dongusu():
     while not client.is_closed():
         try:
             mesaj = mesajlar[index]
+
+            # Typing göster (bekleme süresi 0)
+            await kanal.trigger_typing()
+            await asyncio.sleep(0)
+
             await kanal.send(mesaj)
             print(f"📤 Gönderildi ({index + 1}/{len(mesajlar)}): {mesaj[:50]}...")
 
-            index = (index + 1) % len(mesajlar)  # Sona gelince başa dön
-            await asyncio.sleep(3)  # 3 saniye bekle
+            index = (index + 1) % len(mesajlar)
+            await asyncio.sleep(2)  # ← 2 saniye
 
         except Exception as e:
             print(f"❌ Mesaj gönderme hatası: {e}")
@@ -83,7 +87,6 @@ async def on_ready():
     print(f"🤖 Bağlantı başarılı: {client.user}")
     print(f"📢 Mesaj kanalı: {MESAJ_KANAL_ID}")
     print("=========================================")
-    # Mesaj gönderme döngüsünü başlat
     client.loop.create_task(mesaj_gonderme_dongusu())
 
 client.run(TOKEN)
