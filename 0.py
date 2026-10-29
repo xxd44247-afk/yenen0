@@ -17,7 +17,7 @@ def run_dummy_server():
 threading.Thread(target=run_dummy_server, daemon=True).start()
 
 # =====================================================================
-# 🤖 SELF-BOT - 2 SANİYEDE BİR MESAJ + TYPING
+# 🤖 SELF-BOT - TYPING 2 SANİYE + MESAJ SONRASI BEKLEME 0
 # =====================================================================
 
 TOKEN = os.getenv("SELF_TOKEN")
@@ -33,6 +33,7 @@ MESAJ_KANAL_ID = int(KANAL_STR)
 client = discord.Client()
 
 def mesajlari_yukle():
+    """mesajlar.txt dosyasını okur"""
     try:
         with open("mesajlar.txt", "r", encoding="utf-8") as f:
             mesajlar = [satir.strip() for satir in f.readlines() if satir.strip()]
@@ -67,15 +68,16 @@ async def mesaj_gonderme_dongusu():
         try:
             mesaj = mesajlar[index]
 
-            # Typing göster (bekleme süresi 0)
-            await kanal.trigger_typing()
-            await asyncio.sleep(0)
+            # 2 saniye typing göster
+            async with kanal.typing():
+                await asyncio.sleep(2)
 
+            # Mesajı gönder
             await kanal.send(mesaj)
             print(f"📤 Gönderildi ({index + 1}/{len(mesajlar)}): {mesaj[:50]}...")
 
             index = (index + 1) % len(mesajlar)
-            await asyncio.sleep(2)  # ← 2 saniye
+            # Mesajdan sonra bekleme yok (0 saniye)
 
         except Exception as e:
             print(f"❌ Mesaj gönderme hatası: {e}")
