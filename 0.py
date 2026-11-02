@@ -70,7 +70,7 @@ async def mesaj_gonderme_dongusu():
 
             # 2 saniye typing göster
             async with kanal.typing():
-                await asyncio.sleep(3)
+                await asyncio.sleep(1)
 
             # Mesajı gönder
             await kanal.send(mesaj)
